@@ -1,0 +1,73 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.App {
+	display: flex;
+}
+
+.column {
+	min-width: 120px;
+	border: 2px solid white;
+	text-align: left;
+	padding: 8px;
+	height: 100vh;
+	box-sizing: border-box;
+	overflow-y: auto;
+}
+
+.column:nth-child(odd) {
+	background: gray;
+	border-color: gray;
+}
+
+.column.active {
+	border-color: black;
+}
+
+
+.task {
+	resize: none;
+	display: block;
+	width: 100%;
+	min-height: 17px;
+	margin-bottom: 8px;
+}
+
+.task:not(.expanded) .taskTextarea {
+	display: none;
+}
+
+.column.active .task.expanded .collapsedTask {
+	display: none;
+	font-size: 14px;
+}
+
+.taskTextarea {
+	outline: none;
+	font-size: 14px;
+	border: none;
+    resize: none;
+    width: 100%;
+    text-indent: -10px;
+    padding: 4px 8px 4px 15px;
+    box-sizing: border-box;
+    border: 2px solid black;
+}
+
+.collapsedTask {
+	background: #e88551;
+	border: 2px solid #e88551;
+	padding: 4px 8px;
+	min-height: 18px;
+	font-family: georgia;
+	font-size: 16px;
+	letter-spacing: 0.03em;
+}
+
+
+.column.active .task.active .collapsedTask {
+	border-color: black;
+}
