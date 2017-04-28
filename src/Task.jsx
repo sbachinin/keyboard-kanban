@@ -23,6 +23,7 @@ class Task extends Component {
         (this.props.active ? ' active' : '') +
         (this.props.expanded ? ' expanded' : '')
       }>
+        <div className='taskIndex'>{this.props.taskIndex + 1}</div>
         <div className='collapsedTask'>{this.props.text.split('\n')[0]}</div>
         <textarea
           className='taskTextarea'

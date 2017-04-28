@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Task from './Task';
+import ReactDOM from 'react-dom';
 
 class Column extends Component {
   state = {
@@ -7,6 +8,7 @@ class Column extends Component {
   }
 
   componentWillMount() {
+    this.scrollTop = 0;
     document.addEventListener('keyup', this.handleKeys.bind(this));
   }
 
@@ -19,6 +21,33 @@ class Column extends Component {
       this.setState({ activeTaskIndex: nextProps.tasks.length - 1 });
     }
   }
+
+  componentDidUpdate() {
+    if (this.props.columnIsActive) {
+      this.scrollTop = this.getScrollTop();
+      this.columnElement.scrollTop = this.scrollTop;
+    }
+  }
+
+  // решить, куда прокрутить колонку, исходя из положения выделенного таска
+  getScrollTop() {
+    const activeTaskElement = this.columnElement
+    .querySelectorAll('.task')[this.state.activeTaskIndex];
+    if (!activeTaskElement) return;
+    const taskRect = activeTaskElement.getBoundingClientRect();
+    const taskTopFromWindowTop = taskRect.top;
+    const taskBottomFromWindowTop = taskRect.bottom;
+    const topOverlap = -taskTopFromWindowTop; // на сколько px вылез элемент выше окна?
+    const bottomOverlap = taskBottomFromWindowTop - window.innerHeight; // на сколько ниже?
+    if (topOverlap > 0) {
+      return this.scrollTop - topOverlap - 10;
+    }
+    if (bottomOverlap > 0) {
+      return this.scrollTop + bottomOverlap + 10;
+    }
+    return this.scrollTop;
+  }
+
 
   moveTaskUp() {
     if (this.state.activeTaskIndex === 0) return;
@@ -52,13 +81,14 @@ class Column extends Component {
   }
 
   handleKeys(e) {
-    console.log('is column active? ', this.props.columnIsActive);
     if (!this.props.columnIsActive) return;
 
     // эти действия надо совершать, только если все таски закрыты
     if (!this.state.activeTaskExpanded) {
       if (e.which === 39) { // RIGHT ARROW
-        if (window.shiftPressed) {
+        if (window.shiftPressed &&
+          // если есть что двигать
+          typeof this.props.tasks[this.state.activeTaskIndex] !== 'undefined') {
           this.props.moveTaskRight(this.state.activeTaskIndex);
         } else {
           this.props.switchToNextColumn();
@@ -66,7 +96,8 @@ class Column extends Component {
       }
       
       if (e.which === 37) { // LEFT ARROW
-        if (window.shiftPressed) {
+        if (window.shiftPressed &&
+          typeof this.props.tasks[this.state.activeTaskIndex] !== 'undefined') {
           this.props.moveTaskLeft(this.state.activeTaskIndex);
         } else {
           this.props.switchToPrevColumn();
@@ -82,6 +113,8 @@ class Column extends Component {
         this.setState({
           activeTaskIndex: prevTaskIndex
         });
+        e.preventDefault();
+        return false;
       }
 
       if (e.which === 40) { // BOTTOM ARROW
@@ -93,6 +126,8 @@ class Column extends Component {
         this.setState({
           activeTaskIndex: nextTaskIndex
         });
+        e.preventDefault();
+        return false;
       }
 
       if (e.which === 187) { // plus (or =)
@@ -131,12 +166,20 @@ class Column extends Component {
 
   render() {
     return (
-      <div className={'column' + (this.props.columnIsActive ? ' active' : '')}>{
+      <div
+        className={'column' + (this.props.columnIsActive ? ' active' : '')}
+        ref={comp => {
+          if (!this.columnElement) {
+            this.columnElement = ReactDOM.findDOMNode(comp);
+          }
+        }}
+      >{
         this.props.tasks.map((task, i) => {
           const taskcolumnIsActive = i === this.state.activeTaskIndex;
           const taskIsExpanded = this.props.columnIsActive && taskcolumnIsActive && this.state.activeTaskExpanded;
           return (<Task
             key={i}
+            taskIndex={i}
             text={this.props.tasks[i]}
             active={taskcolumnIsActive}
             expanded={taskIsExpanded}

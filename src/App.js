@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import Column from './Column';
-import './App.css';
 
 class App extends Component {
 
   state = {
-    columns: [[],[], [], [], []],
+    columns: JSON.parse(localStorage.getItem('tasksColumns')) || [[],[], [], [], []],
     activeColumnIndex: 0
   }
 
   
   componentWillMount() {
+    localStorage;
     document.addEventListener('keydown', e => {
       if (e.which === 16) {
         window.shiftPressed = true;
@@ -23,11 +23,14 @@ class App extends Component {
     });
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    localStorage.setItem('tasksColumns', JSON.stringify(this.state.columns));
+  }
+
   switchToNextColumn() {
     const nextColumnIndex = (this.state.activeColumnIndex + 1) < this.state.columns.length ?
     (this.state.activeColumnIndex + 1) : this.state.activeColumnIndex;
     setTimeout(() => { this.setState({activeColumnIndex: nextColumnIndex}); });
-       
   }
 
   switchToPrevColumn() {
@@ -48,6 +51,7 @@ class App extends Component {
   }
 
   moveTaskRight(originalColumnIndex, movedTaskIndex) {
+    if (originalColumnIndex >= this.state.columns.length - 1) return;
     const oldGiverColumn = this.state.columns[originalColumnIndex].slice();
     const oldTakerColumn = this.state.columns[originalColumnIndex + 1].slice();
     const movedTask = oldGiverColumn[movedTaskIndex];

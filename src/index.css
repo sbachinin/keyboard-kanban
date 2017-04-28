@@ -2,20 +2,24 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  overflow: hidden;
 }
 
 .App {
-	display: flex;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .column {
-	min-width: 120px;
+	display: inline-block;
+	width: 20%;
 	border: 2px solid white;
 	text-align: left;
 	padding: 8px;
 	height: 100vh;
 	box-sizing: border-box;
-	overflow-y: auto;
+	overflow-y: hidden;
+	position: relative;
 }
 
 .column:nth-child(odd) {
@@ -34,6 +38,17 @@ body {
 	width: 100%;
 	min-height: 17px;
 	margin-bottom: 8px;
+	position: relative;
+}
+
+.taskIndex {
+	position: absolute;
+	font-size: 10px;
+	font-family: sans-serif;
+	background: white;
+	top: -5px;
+	left: 0;
+	padding: 0 2px;
 }
 
 .task:not(.expanded) .taskTextarea {
@@ -65,6 +80,7 @@ body {
 	font-family: georgia;
 	font-size: 16px;
 	letter-spacing: 0.03em;
+	overflow-x: hidden;
 }
 
 
