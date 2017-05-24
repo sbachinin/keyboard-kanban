@@ -6,29 +6,75 @@ body {
 }
 
 .App {
-	white-space: nowrap;
+	height: 100vh;
+	width: 100%;
+}
+
+
+.columns {
+	height: calc(100% - 40px);
 	overflow: hidden;
+	width: 100%;
+	white-space: nowrap;
+}
+
+.columnWrapper {
+	width: 20%;
+	min-width: 200px;
+	height: 100%;
+	display: inline-flex;
+	flex-direction: column;
+}
+
+.columnHeader {
+	height: 20px;
+	text-align: center;
+	border: 2px solid transparent;
+	overflow: hidden;
+    box-shadow: 0px 1px 0 0 #cccccc;
+    z-index: 1;
+}
+.columnHeader input, .columnHeader .inactiveTitle {
+	display: block;
+	width: 100%;
+	height: 16px;
+	padding-top: 3px;
+	text-align: center;
+	border: none;
+	outline: none;
+	font-size: 14px;
+	font-family: arial;
+}
+
+.inactiveTitle {
+	padding-left: 1px;
+}
+.columnHeader.active {
+	border: 2px solid #7a7a7a;
+	box-shadow: none;
+	height: 21px;
+	margin-bottom: -1px;
 }
 
 .column {
-	display: inline-block;
-	width: 20%;
-	border: 2px solid white;
 	text-align: left;
 	padding: 8px;
-	height: 100vh;
-	box-sizing: border-box;
+	height: 100%;
 	overflow-y: hidden;
+	box-sizing: border-box;
 	position: relative;
+	flex: 1;
+	border: 2px solid transparent;
+	border-bottom: 1px solid #ccc;
 }
 
-.column:nth-child(odd) {
-	background: gray;
-	border-color: gray;
+.columnWrapper:nth-child(odd) .column {
+	background: #f4efff;
 }
 
-.column.active {
-	border-color: black;
+.columnWrapper .column.highlighted {
+    border: 2px solid #7a7a7a;
+	z-index: 1;
 }
 
 
@@ -47,8 +93,10 @@ body {
 	font-family: sans-serif;
 	background: white;
 	top: -5px;
-	left: 0;
+	left: -5px;
 	padding: 0 2px;
+	border: 1px solid #ccc;
+	box-sizing: border-box;
 }
 
 .task:not(.expanded) .taskTextarea {
@@ -73,17 +121,35 @@ body {
 }
 
 .collapsedTask {
-	background: #e88551;
-	border: 2px solid #e88551;
+	background: #faff74;
 	padding: 4px 8px;
 	min-height: 18px;
-	font-family: georgia;
-	font-size: 16px;
+	font-family: calibri, sans-serif;
+	font-size: 14px;
 	letter-spacing: 0.03em;
-	overflow-x: hidden;
+	white-space: normal;
+    word-break: break-word;
 }
 
+.columnWrapper:nth-child(even) .collapsedTask {
+	box-shadow: 0 0 2px rgba(0,0,0,0.2) inset;
+}
+
+.collapsedTask .moreText {
+	margin: -2px -8px -4px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.4));
+    line-height: 10px;
+    padding: 0 3px 3px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-indent: -10px;
+    letter-spacing: 0.3em;
+}
 
 .column.active .task.active .collapsedTask {
-	border-color: black;
+	box-shadow: 0 0 0 2px #7a7a7a;
+}
+
+.hints {
+	height: 20px;
 }

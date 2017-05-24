@@ -17,6 +17,16 @@ class Task extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    const { text, active, expanded } = this.props;
+    if (text !== nextProps.text ||
+      active !== nextProps.active ||
+      expanded !== nextProps.expanded) {
+      return true;
+    }
+    return false;
+  }
+
   render() {
     return (
       <div className={'task' +
@@ -24,7 +34,13 @@ class Task extends Component {
         (this.props.expanded ? ' expanded' : '')
       }>
         <div className='taskIndex'>{this.props.taskIndex + 1}</div>
-        <div className='collapsedTask'>{this.props.text.split('\n')[0]}</div>
+        <div className='collapsedTask'>
+          {this.props.text.split('\n')[0]}
+          {
+            this.props.text.split('\n')[1] ?
+            <p className='moreText'>...............................................</p> : null
+          }
+        </div>
         <textarea
           className='taskTextarea'
           readOnly={!this.props.expanded}
@@ -35,8 +51,9 @@ class Task extends Component {
           }}
           value={this.props.text}
           onChange={e => {
+            console.log('changing textarea');
             autosize.update(this.textarea);
-            this.props.changeTaskText(e.target.value);
+            this.props.replaceTask(e.target.value);
           }}
         >
         </textarea>

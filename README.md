@@ -4,7 +4,7 @@ Personally for me the vertical position means task's priority and horizontal mea
 ## Keys
 
 * `+` - add task
-* `-` - remove task
+* `backspace` - remove task
 * `right arrow` - switch to next column
 * `left arrow` - switch to previous column
 * `Shift + right` - move task to next column

@@ -3,17 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "gh-pages": "0.12.0",
     "react-scripts": "0.9.5"
   },
   "dependencies": {
     "autosize": "3.0.20",
+    "lodash": "4.17.4",
     "react": "15.5.4",
-    "react-dom": "15.5.4"
+    "react-dom": "15.5.4",
+    "shortid": "2.2.8"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3006 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  }
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "homepage": "http://sbachinin.github.io/keyboard-kanban"
 }
