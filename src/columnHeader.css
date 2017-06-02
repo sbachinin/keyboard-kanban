@@ -1,0 +1,66 @@
+
+
+.columnHeader {
+	height: 20px;
+	text-align: center;
+    box-shadow: 0px 1px 0 0 #cccccc;
+    z-index: 1;
+	font-size: 14px;
+	font-family: arial;
+}
+.columnHeader .nonEditableTitle {
+	display: block;
+	text-align: center;
+	width: 85%;
+	line-height: 20px;
+	overflow: hidden;
+	margin: 0 auto;
+}
+.activeHeaderContents {
+	display: flex;
+	justify-content: space-between;
+	margin: 0 -10px;
+}
+.activeHeaderContents .nonEditableTitle {
+	box-sizing: border-box;
+	flex: 1;
+	margin: 0;
+	height: 20px;
+}
+.activeHeaderContents span {
+	display: inline-block;
+	vertical-align: middle;
+	border: 2px solid transparent;
+	height: 16px;
+	line-height: 16px !important;
+}
+.activeHeaderContents span.active {
+	border-color: #7a7a7a;
+}
+.addColumn {
+	font-size: 26px;
+	padding: 0 1px;
+	background: #baffa5;
+}
+.titleInput {
+	font-family: arial;
+	padding: 0;
+	outline: none;
+	border: 2px solid black;
+	height: 20px;
+	box-sizing: border-box;
+	width: 120px;
+	text-align: center;
+	font-size: 14px;
+}
+
+.deleteColumn {
+	background: pink;
+	color: red;
+	font-size: 16px;
+}
+
+.activeHeaderContents .nonEditableTitle {
+	background: #faff74;
+	width: 120px;
+}

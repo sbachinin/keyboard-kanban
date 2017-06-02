@@ -180,7 +180,7 @@ export function switchColumn(direction, state) {
   }
 }
 
-export function switchTask(direction, state) {
+export function switchActiveTaskIndex(direction, state) {
 	
 	if (direction === 'up') {
 		if (state.activeTaskIndex > -2) {
@@ -201,12 +201,15 @@ export function switchTask(direction, state) {
 }
 
 
-export function changeColumnTitle(newTitle, state) {
-  const newColumn = Object.assign({},
-    state.columns[state.activeColumnIndex],
-    { title: newTitle }
-  );
-  return replaceColumn(newColumn, state);
+export function changeColumnTitle(state) {
+	if (state.columnTitleIsEdited) {
+	  const newColumn = Object.assign({},
+	    state.columns[state.activeColumnIndex],
+	    { title: state.unsavedColumnTitle }
+	  );
+	  return replaceColumn(newColumn, state);
+	}
+	return state.columns;
 }
 
 export function tryExpandTask(state) {
@@ -219,6 +222,15 @@ export function tryExpandTask(state) {
 	return false;
 }
 
+export function tryEditColumnTitle(state) {
+	// we are on columnHeader and its active item index is 1 
+	if (state.activeTaskIndex === -1 &&
+		state.columnHeaderActiveIndex === 1 &&
+		!state.columnTitleIsEdited) {
+		return true;
+	}
+	return false;
+}
 
 function getActiveTask(state) {
 	return state.columns[state.activeColumnIndex].tasks[state.activeTaskIndex];

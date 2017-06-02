@@ -6,6 +6,9 @@ class Task extends Component {
   
   componentDidMount() {
     autosize(this.textarea);
+    if (this.props.expanded) { // task is just created
+      setTimeout(() => { this.textarea.focus(); }, 0);
+    }
   }
 
   componentWillReceiveProps(nextProps) {

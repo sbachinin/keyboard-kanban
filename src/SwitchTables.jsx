@@ -36,7 +36,6 @@ export default class SwitchTables extends Component {
         };
       })
       .filter(table => table.tableName !== this.props.activeTableName);
-      console.log(otherTables.map(t => t.tableName));
       this.setState({otherTables});
     }
   }

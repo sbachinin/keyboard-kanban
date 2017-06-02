@@ -35,7 +35,7 @@ export default class TaskList extends Component {
         });
       }
       if (e.which === 40 && this.state.selectedItem !== 'switch') { // down
-        this.props.returnToColumns();
+        setTimeout(_ => { this.props.returnToColumns(); });
       }
     });
   }
@@ -56,7 +56,6 @@ export default class TaskList extends Component {
     if (this.state.selectedItem === 'name' && nextState.selectedItem !== 'name') {
       this.nameInput.blur();
     }
-    this.state.newTableInputShown
   }
 
   changeTableName(e) {

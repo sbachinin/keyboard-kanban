@@ -6,13 +6,12 @@ import ColumnHeader from './ColumnHeader';
 import TaskList from './TaskList';
 import _ from 'lodash';
 import shortId from 'shortid';
+import keyHandlers from './keyHandlers/keyHandlers';
 
 import {
-  moveTaskRight, moveTaskLeft, moveTaskVert,
-  removeTask, replaceTask, addTask,
-  switchColumn, switchTask,
-  changeColumnTitle, tryExpandTask
-} from './actions';
+  replaceTask,
+  switchColumn 
+} from './keyHandlers/actions';
 
 const blankColumns = _.range(5).map(i => { return { tasks: [] } });
 
@@ -28,6 +27,8 @@ if (!activeTableId) {
 }
 const activeTable = JSON.parse(localStorage.getItem(activeTableId)) || {};
 
+let shiftPressed;
+
 class App extends Component {
 
   state = {
@@ -35,134 +36,50 @@ class App extends Component {
     tableName: activeTable.tableName || '???',
     columns: activeTable.columns,
     activeColumnIndex: 0,
+    columnHeaderActiveIndex: 1,
+    columnTitleIsEdited: false,
     activeTaskIndex: 0,
-    taskIsEdited: false
+    taskIsEdited: false,
   }
 
   componentWillMount() {
+
+    keyHandlers.subscribe(newState => {
+      this.setState(newState);
+    })
+
     window.onblur = () => {
-      window.shiftPressed = false;
+      shiftPressed = false;
     }
 
     this.scrollLeft = 0;
-    localStorage;
+
     document.addEventListener('keydown', e => {
       if (e.which === 16) {
-        window.shiftPressed = true;
+        shiftPressed = true;
       }
     });
 
     document.addEventListener('keyup', e => {
-      let action;
-      if (!this.state.taskIsEdited) {
-        action = this.navigationActions[e.which];
-      } else {
-        action = this.taskEditActions[e.which];
+      if (e.which === 16) {
+        shiftPressed = false;
       }
-      if (action) action.call(this);
+      keyHandlers.fire(e.which, this.state, {
+        shiftPressed
+      });
     });
   }
 
-  
-  taskEditActions = {
-    
-    16() { // SHIFT
-      window.shiftPressed = false;
-    },
-    27() { // esc
-      this.setState({ taskIsEdited: false });
-      this.save();
-    }
-  }
-
-
-  navigationActions = { // actions performed when task is NOT EDITED
-
-    16() { // SHIFT
-      window.shiftPressed = false;
-    },
-
-    39() { // RIGHT
-      if (this.state.activeTaskIndex === -2) return;
-      if (window.shiftPressed) {
-        this.setState({ columns: moveTaskRight(this.state) });
-      }
-      this.setState({
-        activeColumnIndex: switchColumn('right', this.state),
-        activeTaskIndex: this.state.activeTaskIndex >= 0 ? 0 : this.state.activeTaskIndex
-      });
-    },
-
-    37() { // LEFT
-      if (this.state.activeTaskIndex === -2) return;
-      if (window.shiftPressed) {
-        this.setState({ columns: moveTaskLeft(this.state) });
-      }
-      this.setState({
-        activeColumnIndex: switchColumn('left', this.state),
-        activeTaskIndex: this.state.activeTaskIndex >= 0 ? 0 : this.state.activeTaskIndex
-      });
-    },
-
-    38() { // UP ARROW
-      if (window.shiftPressed) {
-        this.setState({ columns: moveTaskVert('up', this.state) });
-        // dont switch to column title when reaching first task position
-        if (this.state.activeTaskIndex === 0) return;
-      }
-      this.setState({ activeTaskIndex: switchTask('up', this.state) });
-    },
-
-    40() { // DOWN ARROW
-      if (this.state.activeTaskIndex === -2) return;
-      if (window.shiftPressed) {
-        this.setState({ columns: moveTaskVert('down', this.state) });
-      }
-      this.setState({ activeTaskIndex: switchTask('down', this.state) });
-    },
-
-    187() { // plus (or =)
-      if (this.state.activeTaskIndex < 0) return;
-      this.setState({
-        columns: addTask(this.state)
-      });
-      // double setState <-- otherwise first task in column would not focus
-      this.setState({
-        taskIsEdited: true,
-        activeTaskIndex: 0
-      })
-    },
-
-    8() { // backspace
-      this.setState({ columns: removeTask(this.state) });      
-    },
-    
-    13() { // enter
-      this.setState({ taskIsEdited: tryExpandTask(this.state) });
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
-    if (this.shouldSave(prevState)) {
-      this.save();
-    }
     this.scrollLeft = this.getScrollLeft();
     this.columnsElement.scrollLeft = this.scrollLeft;
   }
 
-  save() {
-    const { columns, tableName } = this.state;
-    const table = { columns, tableName };
-    localStorage.setItem(this.state.activeTableId, JSON.stringify(table));
-  }
-
-  shouldSave(prevState) {
-    // save to storage only if columns or tableName changed BUT not while editing task
-    if (this.state.taskIsEdited) return false;
-    if (prevState.columns === this.state.columns &&
-      prevState.tableName === this.state.tableName
-    ) return false;
-    return true;
+  switchColumn(dir) {
+    this.setState({
+      activeColumnIndex: switchColumn(dir, this.state),
+      activeTaskIndex: this.state.activeTaskIndex >= 0 ? 0 : this.state.activeTaskIndex
+    });
   }
 
   // решить, куда прокрутить колонку, исходя из положения выделенного таска
@@ -237,11 +154,9 @@ class App extends Component {
                   <ColumnHeader
                     headerActive={ headerActive }
                     columnTitle={ this.getColumnTitle(i) }
-                    changeColumnTitle={ newTitle => {
-                      this.setState({
-                        columns: changeColumnTitle(newTitle, this.state)
-                      })
-                    }}
+                    activeItemIndex={this.state.columnHeaderActiveIndex}
+                    columnTitleIsEdited={this.state.columnTitleIsEdited}
+                    setUnsavedColumnTitle={e => { this.setState({ unsavedColumnTitle: e.target.value}); }}
                   />
                   <TaskList
                     tasks={column.tasks}
