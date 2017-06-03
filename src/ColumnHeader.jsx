@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import PropTypes from 'prop-types';
 // отображает название колонки (по умалочанию ее номер)
 // позволяет менять название
 // позволяет удалять колонку
@@ -10,7 +10,6 @@ class ColumnHeader extends Component {
   componentWillUpdate(nextProps, nextState) {
     if (!this.props.columnTitleIsEdited && nextProps.columnTitleIsEdited) {
       setTimeout(() => {
-        this.titleInput.value = this.props.columnTitle;
         this.titleInput.focus();
       });
     }
@@ -41,10 +40,14 @@ class ColumnHeader extends Component {
                   <input
                     className='titleInput'
                     type='text'
+                    value={this.props.columnTitle}
                     ref={comp => {
                       this.titleInput = comp;
                     }}
-                    onChange={this.props.setUnsavedColumnTitle}
+                    onChange={e => {
+                      this.context.dispatcher.fireAction(
+                        'changeColumnTitle', { newTitle: e.target.value });
+                    }}
                   />
                 ) : (
                   <span className={
@@ -68,5 +71,9 @@ class ColumnHeader extends Component {
     )
   }
 }
+
+ColumnHeader.contextTypes = {
+  dispatcher: PropTypes.object
+};
 
 export default ColumnHeader;

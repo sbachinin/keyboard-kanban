@@ -1,6 +1,7 @@
 
-export function moveTaskRight(state) {
-  
+
+function moveTaskRight(state) {
+	  
   const { columns, activeColumnIndex, activeTaskIndex } = state;
 
 	if (typeof getActiveTask(state) === 'undefined') return columns;
@@ -38,7 +39,8 @@ export function moveTaskRight(state) {
   return newColumns;
 }
 
-export function moveTaskLeft(state) {
+
+function moveTaskLeft(state) {
 
 	const { columns, activeColumnIndex, activeTaskIndex } = state;
 	if (typeof getActiveTask(state) === 'undefined') return columns;
@@ -79,7 +81,7 @@ export function moveTaskLeft(state) {
 }
 
 
-export function moveTaskVert(direction, state) {
+function moveTaskVert(direction, state) {
 	const { columns, activeTaskIndex, activeColumnIndex } = state;
 
 	if (activeTaskIndex < 0) return state.columns;
@@ -111,36 +113,37 @@ export function moveTaskVert(direction, state) {
 
 	const newActiveColumn = Object.assign({}, activeColumn, {tasks: newTasks});
 
-	return replaceColumn(newActiveColumn, state);
+	return updateColumn(newActiveColumn, state);
 }
 
-export function replaceTask(changedTask, state) {
+
+function changeTask(state, actionData) {
 	const { columns, activeColumnIndex, activeTaskIndex } = state;
 	const activeColumn = columns[activeColumnIndex];
 
 	const newActiveColumn = Object.assign({}, activeColumn, {
   	tasks: [
 	    ...activeColumn.tasks.slice(0, activeTaskIndex),
-	    changedTask,
+	    actionData.newTask,
 	    ...activeColumn.tasks.slice(activeTaskIndex + 1)
 	  ]
   });
 
-  return replaceColumn(newActiveColumn, state);
+  return updateColumn(newActiveColumn, state);
 }
 
 
-export function addTask(state) {
+function addTask(state) {
 	const { columns, activeColumnIndex } = state;
 	const activeColumn = columns[activeColumnIndex];
   const newActiveColumn = Object.assign({}, activeColumn, {
   	tasks: [''].concat(activeColumn.tasks)
   });
-  return replaceColumn(newActiveColumn, state);
+  return updateColumn(newActiveColumn, state);
 }
 
 
-export function removeTask(state) {
+function removeTask(state) {
 	if (state.activeTaskIndex <= -1) return state.columns;
 	const activeTask = getActiveTask(state);
 	if (typeof activeTask === 'undefined') return state.columns;
@@ -152,21 +155,22 @@ export function removeTask(state) {
     ...activeColumn.tasks.slice(activeTaskIndex + 1)
   ];
   const newActiveColumn = Object.assign({}, activeColumn, { tasks });
-  return replaceColumn(newActiveColumn, state);
+  return updateColumn(newActiveColumn, state);
 }
 
 
-export function replaceColumn(newColumn, state) {
+function updateColumn(newColumn, state) {
 	const { activeColumnIndex, columns } = state;
 	const newColumns = [
     ...columns.slice(0, activeColumnIndex),
     newColumn,
     ...columns.slice(activeColumnIndex + 1)
   ];
-  return newColumns;
+  return { columns: newColumns };
 }
 
-export function switchColumn(direction, state) {
+
+function switchColumn(direction, state) {
   if (direction === 'right') {
   	if ((state.activeColumnIndex + 1) < state.columns.length) {
   		return state.activeColumnIndex + 1;
@@ -180,7 +184,8 @@ export function switchColumn(direction, state) {
   }
 }
 
-export function switchActiveTaskIndex(direction, state) {
+
+function switchActiveTaskIndex(direction, state) {
 	
 	if (direction === 'up') {
 		if (state.activeTaskIndex > -2) {
@@ -201,18 +206,21 @@ export function switchActiveTaskIndex(direction, state) {
 }
 
 
-export function changeColumnTitle(state) {
+function changeColumnTitle(state, actionData) {
+	// new title is passed from onChange event and is equal to e.target.value
+	// if it's not supplied, undo changes to column title (esc pressed)
 	if (state.columnTitleIsEdited) {
+		let title = actionData && actionData.newTitle;
 	  const newColumn = Object.assign({},
 	    state.columns[state.activeColumnIndex],
-	    { title: state.unsavedColumnTitle }
+	    { title }
 	  );
-	  return replaceColumn(newColumn, state);
+	  return updateColumn(newColumn, state);
 	}
-	return state.columns;
 }
 
-export function tryExpandTask(state) {
+
+function tryExpandTask(state) {
 	// when pressing enter, is there a task corresponding to activeTaskIndex?
 	// otherwise pressing enter on blank column will enter 'edit' of nothing & freeze navigation
 	const activeTask = getActiveTask(state);
@@ -222,7 +230,8 @@ export function tryExpandTask(state) {
 	return false;
 }
 
-export function tryEditColumnTitle(state) {
+
+function toggleEditColumnTitle(state) {
 	// we are on columnHeader and its active item index is 1 
 	if (state.activeTaskIndex === -1 &&
 		state.columnHeaderActiveIndex === 1 &&
@@ -232,7 +241,34 @@ export function tryEditColumnTitle(state) {
 	return false;
 }
 
+
+function setColumnTitleBeforeEdit(state) {
+	if (state.activeTaskIndex === -1 &&
+		state.columnHeaderActiveIndex === 1 &&
+		!state.columnTitleIsEdited) {
+		return state.columns[state.activeColumnIndex].title;
+	}
+}
+
+
 function getActiveTask(state) {
 	return state.columns[state.activeColumnIndex].tasks[state.activeTaskIndex];
+}
+
+export default {
+	moveTaskRight,
+	moveTaskLeft,
+	moveTaskVert,
+	changeTask,
+	addTask,
+	removeTask,
+	updateColumn,
+	switchColumn,
+	switchActiveTaskIndex,
+	changeColumnTitle,
+	tryExpandTask,
+	toggleEditColumnTitle,
+	setColumnTitleBeforeEdit,
+	getActiveTask
 }
 

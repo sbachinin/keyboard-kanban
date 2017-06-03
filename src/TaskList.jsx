@@ -76,7 +76,6 @@ export default class TaskList extends Component {
               text={this.props.tasks[i]}
               active={taskcolumnIsActive}
               expanded={taskIsExpanded}
-              replaceTask={this.props.replaceTask}
             />);
           })
         }

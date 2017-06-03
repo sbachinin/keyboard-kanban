@@ -1,4 +1,4 @@
-import { switchColumn, switchActiveTaskIndex, moveTaskLeft, moveTaskRight, moveTaskVert } from './actions';
+import basicActions from './basicActions';
 
 export default {
 
@@ -17,7 +17,7 @@ export default {
 			case -1: {
 				if (state.columnHeaderActiveIndex === 0) {
 		      newProps.columnHeaderActiveIndex = 2;
-					newProps.activeColumnIndex = switchColumn('left', state);
+					newProps.activeColumnIndex = basicActions.switchColumn('left', state);
 					newProps.activeTaskIndex = state.activeTaskIndex >= 0 ?
 						0 : state.activeTaskIndex;
 		    } else {
@@ -28,10 +28,10 @@ export default {
 
 			default: {
 			  if (params.shiftPressed) {
-					newProps.columns = moveTaskLeft(state);
+					newProps.columns = basicActions.moveTaskLeft(state);
 				}
         if (!state.taskIsEdited || params.shiftPressed) {
-  				newProps.activeColumnIndex = switchColumn('left', state);
+  				newProps.activeColumnIndex = basicActions.switchColumn('left', state);
         	newProps.activeTaskIndex = state.activeTaskIndex >= 0 ?
         		0 : state.activeTaskIndex;
         }
@@ -52,7 +52,7 @@ export default {
 			case -1: {
 				if (state.columnHeaderActiveIndex === 3) {
 		      newProps.columnHeaderActiveIndex = 1;
-					newProps.activeColumnIndex = switchColumn('right', state);
+					newProps.activeColumnIndex = basicActions.switchColumn('right', state);
 					newProps.activeTaskIndex = state.activeTaskIndex >= 0 ?
 						0 : state.activeTaskIndex;
 		    } else {
@@ -63,10 +63,10 @@ export default {
 
 			default: {
 			  if (params.shiftPressed) {
-					newProps.columns = moveTaskRight(state);
+					newProps.columns = basicActions.moveTaskRight(state);
 				}
         if (!state.taskIsEdited || params.shiftPressed) {
-  				newProps.activeColumnIndex = switchColumn('right', state);
+  				newProps.activeColumnIndex = basicActions.switchColumn('right', state);
         	newProps.activeTaskIndex = state.activeTaskIndex >= 0 ?
         		0 : state.activeTaskIndex;
         }
@@ -85,16 +85,16 @@ export default {
       case -2: break;
 
       case -1: {
-        newProps.activeTaskIndex = switchActiveTaskIndex('down', state);
+        newProps.activeTaskIndex = basicActions.switchActiveTaskIndex('down', state);
         break;
       }
 
       default: {
         if (params.shiftPressed) {
-          newProps.columns = moveTaskVert('down', state);
+          newProps.columns = basicActions.moveTaskVert('down', state);
         }
         if (!state.taskIsEdited || params.shiftPressed) {
-          newProps.activeTaskIndex = switchActiveTaskIndex('down', state);
+          newProps.activeTaskIndex = basicActions.switchActiveTaskIndex('down', state);
         }
       }
     }
@@ -112,23 +112,23 @@ export default {
       case -2: break;
 
       case -1: {
-        newProps.activeTaskIndex = switchActiveTaskIndex('up', state);
+        newProps.activeTaskIndex = basicActions.switchActiveTaskIndex('up', state);
         break;
       }
       case 0: {
         if (!params.shiftPressed && !state.taskIsEdited) {
           // switch up to column header only if task is not dragged
-          newProps.activeTaskIndex = switchActiveTaskIndex('up', state);
+          newProps.activeTaskIndex = basicActions.switchActiveTaskIndex('up', state);
         }
         break;
       }
       default: {
         if (params.shiftPressed) {
-          newProps.columns = moveTaskVert('up', state);
+          newProps.columns = basicActions.moveTaskVert('up', state);
         }
         // if editing task, switching task index is allowed only with drag
         if (!state.taskIsEdited || params.shiftPressed) {
-          newProps.activeTaskIndex = switchActiveTaskIndex('up', state);
+          newProps.activeTaskIndex = basicActions.switchActiveTaskIndex('up', state);
         }
       }
     }

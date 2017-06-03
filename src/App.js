@@ -1,17 +1,13 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
 import Tables from './Tables';
 import ColumnHeader from './ColumnHeader';
 import TaskList from './TaskList';
 import _ from 'lodash';
 import shortId from 'shortid';
-import keyHandlers from './keyHandlers/keyHandlers';
-
-import {
-  replaceTask,
-  switchColumn 
-} from './keyHandlers/actions';
+import dispatcher from './keyHandlers/dispatcher';
 
 const blankColumns = _.range(5).map(i => { return { tasks: [] } });
 
@@ -38,15 +34,21 @@ class App extends Component {
     activeColumnIndex: 0,
     columnHeaderActiveIndex: 1,
     columnTitleIsEdited: false,
+    columnTitleBeforeEdit: '',
     activeTaskIndex: 0,
     taskIsEdited: false,
   }
 
+  getChildContext() { return { dispatcher: dispatcher }; }
+
   componentWillMount() {
 
-    keyHandlers.subscribe(newState => {
-      this.setState(newState);
-    })
+    dispatcher.connect(
+      _ => Object.assign({}, this.state),
+      newState => {
+        this.setState(newState);
+      }
+    )
 
     window.onblur = () => {
       shiftPressed = false;
@@ -64,7 +66,8 @@ class App extends Component {
       if (e.which === 16) {
         shiftPressed = false;
       }
-      keyHandlers.fire(e.which, this.state, {
+      dispatcher.fireAction('keyUp', {
+        eWhich: e.which,
         shiftPressed
       });
     });
@@ -75,12 +78,6 @@ class App extends Component {
     this.columnsElement.scrollLeft = this.scrollLeft;
   }
 
-  switchColumn(dir) {
-    this.setState({
-      activeColumnIndex: switchColumn(dir, this.state),
-      activeTaskIndex: this.state.activeTaskIndex >= 0 ? 0 : this.state.activeTaskIndex
-    });
-  }
 
   // решить, куда прокрутить колонку, исходя из положения выделенного таска
   getScrollLeft() {
@@ -156,16 +153,10 @@ class App extends Component {
                     columnTitle={ this.getColumnTitle(i) }
                     activeItemIndex={this.state.columnHeaderActiveIndex}
                     columnTitleIsEdited={this.state.columnTitleIsEdited}
-                    setUnsavedColumnTitle={e => { this.setState({ unsavedColumnTitle: e.target.value}); }}
                   />
                   <TaskList
                     tasks={column.tasks}
                     taskListActive={taskListActive}
-                    replaceTask={newTask => {
-                      this.setState({
-                        columns: replaceTask(newTask, this.state)
-                      });
-                    }}
                     activeTaskIndex={activeTaskIndex}
                     taskIsEdited={this.state.taskIsEdited}
                   />
@@ -179,5 +170,9 @@ class App extends Component {
     );
   }
 }
+
+App.childContextTypes = {
+  dispatcher: PropTypes.object
+};
 
 export default App;

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import autosize from 'autosize';
+import PropTypes from 'prop-types';
 
 class Task extends Component {
   
@@ -54,14 +55,17 @@ class Task extends Component {
           }}
           value={this.props.text}
           onChange={e => {
-            console.log('changing textarea');
             autosize.update(this.textarea);
-            this.props.replaceTask(e.target.value);
+            this.context.dispatcher.fireAction('changeTask', { newTask :e.target.value });
           }}
         >
         </textarea>
       </div>)
   }
 }
+
+Task.contextTypes = {
+  dispatcher: PropTypes.object
+};
 
 export default Task;

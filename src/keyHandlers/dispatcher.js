@@ -4,20 +4,24 @@
 // и передаю новое его значение
 // Так что app должен подписаться на изменения в keyHandlers
 
-import arrowKeyHandlers from './arrowKeyHandlers';
-import otherKeyHandlers from './otherKeyHandlers';
-
+import arrowKeyActions from './arrowKeyActions';
+import otherKeyActions from './otherKeyActions';
+import basicActions from './basicActions';
+console.log(basicActions)
 // these take state and return properties that should be updated (assigned)
-const handlers = {
-	...arrowKeyHandlers,
-	...otherKeyHandlers
+const keyPressActions = {
+	...arrowKeyActions,
+	...otherKeyActions
 }
 
 let notifyApp;
+let getStateCopy;
 
 function trySaveToLocalStorage(state, newState) {
 	if (state.columns !== newState.columns ||
-		state.tableName !== newState.tableName
+		state.tableName !== newState.tableName ||
+		// and when stop editing column title
+		(state.columnTitleIsEdited && !newState.columnTitleIsEdited)
 	) {
 		const { columns, tableName } = newState;
 	    const table = { columns, tableName };
@@ -26,14 +30,22 @@ function trySaveToLocalStorage(state, newState) {
 }
 
 export default {
-	subscribe(fn) {
-		notifyApp = fn;
+	connect(getStateCopyFn, notifyAppFn) {
+		notifyApp = notifyAppFn;
+		getStateCopy = getStateCopyFn;
 	},
-	fire(key, state, params) {
-		const fn = handlers[key];
-		if (!fn) return state;
-		const newParams = fn(state, params);
-		const newState = Object.assign({}, state, newParams);
+	fireAction(actionType, actionData) {
+		// actionType === 'changeTask'
+		const state = getStateCopy();
+		let action;
+		if (actionType === 'keyUp') {
+			action = keyPressActions[actionData.eWhich];
+			if (!action) return state;
+		} else {
+			action = basicActions[actionType];
+		}
+		const newValues = action(state, actionData);
+		const newState = Object.assign({}, state, newValues);
 
 		trySaveToLocalStorage(state, newState);
 		notifyApp(newState);
