@@ -7,7 +7,8 @@ import ColumnHeader from './ColumnHeader';
 import TaskList from './TaskList';
 import _ from 'lodash';
 import shortId from 'shortid';
-import dispatcher from './keyHandlers/dispatcher';
+import dispatcher from './store/dispatcher';
+import translateKeyToAction from './store/translateKeyToAction';
 
 const blankColumns = _.range(5).map(i => { return { tasks: [] } });
 
@@ -32,7 +33,7 @@ class App extends Component {
     tableName: activeTable.tableName || '???',
     columns: activeTable.columns,
     activeColumnIndex: 0,
-    columnHeaderActiveIndex: 1,
+    selectedHeaderItemIndex: 1,
     columnTitleIsEdited: false,
     columnTitleBeforeEdit: '',
     activeTaskIndex: 0,
@@ -60,16 +61,24 @@ class App extends Component {
       if (e.which === 16) {
         shiftPressed = true;
       }
+      const actionType = translateKeyToAction(
+        e.which,
+        this.state,
+        { shiftPressed }
+      );
+      console.log('action type: ', actionType);
+      if (actionType) dispatcher.fireAction(actionType);
+      
+      if (e.which === 13) { // enter
+        // to avoid adding new line before closing task edit
+        if (!shiftPressed && this.state.taskIsEdited) e.preventDefault(); return false;
+      }
     });
 
     document.addEventListener('keyup', e => {
       if (e.which === 16) {
         shiftPressed = false;
       }
-      dispatcher.fireAction('keyUp', {
-        eWhich: e.which,
-        shiftPressed
-      });
     });
   }
 
@@ -151,7 +160,7 @@ class App extends Component {
                   <ColumnHeader
                     headerActive={ headerActive }
                     columnTitle={ this.getColumnTitle(i) }
-                    activeItemIndex={this.state.columnHeaderActiveIndex}
+                    activeItemIndex={this.state.selectedHeaderItemIndex}
                     columnTitleIsEdited={this.state.columnTitleIsEdited}
                   />
                   <TaskList

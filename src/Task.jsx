@@ -56,7 +56,7 @@ class Task extends Component {
           value={this.props.text}
           onChange={e => {
             autosize.update(this.textarea);
-            this.context.dispatcher.fireAction('changeTask', { newTask :e.target.value });
+            this.context.dispatcher.fireAction('updateTask', { newTask :e.target.value });
           }}
         >
         </textarea>

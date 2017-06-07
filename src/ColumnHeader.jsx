@@ -46,7 +46,7 @@ class ColumnHeader extends Component {
                     }}
                     onChange={e => {
                       this.context.dispatcher.fireAction(
-                        'changeColumnTitle', { newTitle: e.target.value });
+                        'updateColumnTitle', { newTitle: e.target.value });
                     }}
                   />
                 ) : (
